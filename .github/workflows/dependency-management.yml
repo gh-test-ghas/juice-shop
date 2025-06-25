@@ -1,0 +1,33 @@
+# Dependency Review Action
+#
+# This Action will scan dependency manifest files, and upload the information to the dependency graph.
+# Furthermore it will scan changes in manifest files on a PR and add information on those changes to the PR.
+#
+name: 'Dependency management'
+on:
+  pull_request:
+    branches: [ "master" ]
+  push:
+    branches: [ "master" ]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+      - name: 'Component Detection dependency submission action'
+        uses: advanced-security/component-detection-dependency-submission-action@v0.0.6               
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@v4
+        # only run the dependency review action on pull requests
+        if: github.event_name == 'pull_request'
+        with:
+          comment-summary-in-pr: always
+          fail-on-severity: moderate
+          deny-licenses: GPL-1.0-or-later, LGPL-2.0-or-later
+          retry-on-snapshot-warnings: true
